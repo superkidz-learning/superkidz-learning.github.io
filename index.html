@@ -688,10 +688,7 @@
 <div id="drag-instructions-overlay" class="instruction-overlay hidden">
     <div class="instruction-card">
         <h3>Instructions</h3>
-        <p id="drag-instruction-text">Welcome to Drag and Drop - English to French Game. Please drag the English word on the right-hand side to match with the French word on the left-hand side.</p>
-        <button onclick="closeDragInstructions()" style="background-color: #ae3ce7; font-size: 20px; padding: 12px 24px;">Dismiss</button>
-    </div>
-</div>
+        <p id="drag-instruction-text">Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.</p>
 
 <div id="learning-instructions-overlay" class="instruction-overlay hidden">
     <div class="instruction-card">
@@ -1143,8 +1140,8 @@
         const mode = dragGameState.mode === 'fr2en' ? 'French to English' : 'English to French';
 
         instructionText.textContent = dragGameState.mode === 'fr2en'
-            ? 'Welcome to Drag and Drop - French to English Game. Please drag the French word on the right-hand side to match with the English word on the left-hand side.'
-            : 'Welcome to Drag and Drop - English to French Game. Please drag the English word on the right-hand side to match with the French word on the left-hand side.';
+            ? 'Welcome to Drag and Drop - French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
+            : 'Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
 
         overlay.classList.remove('hidden');
         speakDragInstruction();
@@ -1262,8 +1259,8 @@
 
     function speakDragInstruction() {
         const text = dragGameState.mode === 'fr2en'
-            ? 'Welcome to Drag and Drop - French to English Game. Please drag the French word on the right-hand side to match with the English word on the left-hand side.'
-            : 'Welcome to Drag and Drop - English to French Game. Please drag the English word on the right-hand side to match with the French word on the left-hand side.';
+            ? 'Welcome to Drag and Drop - French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
+            : 'Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
 
         speakInstruction(text, 'en-US');
     }
