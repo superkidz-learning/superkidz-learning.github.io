@@ -647,7 +647,7 @@
 <body>
 
 <div class="container">
-    <h1>SuperKidz French Games</h1>
+    <h1 id="app-main-title">SuperKidz French Games</h1>
     <!-- <div class="subtitle">Le Visage (Face) et Le Corps Humain (Human Body)</div> -->
 
     <!-- MAIN MENU SCREEN -->
@@ -1021,6 +1021,23 @@
 
     function toggleSoundPreference() {
         setSoundEnabled(!soundEnabled);
+    }
+
+    function setMainTitle(mode = null) {
+        const titleEl = document.getElementById('app-main-title');
+        if (!titleEl) return;
+
+        if (mode === 'en2fr') {
+            titleEl.textContent = 'SuperKidz English to French Game';
+            return;
+        }
+
+        if (mode === 'fr2en') {
+            titleEl.textContent = 'SuperKidz French to English Game';
+            return;
+        }
+
+        titleEl.textContent = 'SuperKidz French Games';
     }
 
     function renderTopicMenu() {
@@ -1483,6 +1500,7 @@
     function startDragDropGame(mode = 'en2fr', category = 'face') {
         currentTopicKey = category;
         dragGameState.mode = mode;
+        setMainTitle(mode);
         dragGameState.pairs = shuffle(getTopicWords(category));
         dragGameState.matched = [];
         dragGameState.correct = 0;
@@ -1509,13 +1527,13 @@
         const topicTitle = getTopicTitle(topic);
 
         if (mode === 'fr2en') {
-            title.textContent = `🧩 ${topicTitle} - French to English Game`;
+            title.textContent = `🧩 ${topicTitle}`;
             leftLabel.textContent = 'English';
             leftLabel.style.color = '#27ae60';
             rightLabel.textContent = 'French';
             rightLabel.style.color = '#2980b9';
         } else {
-            title.textContent = `🧩 ${topicTitle} - English to French Game`;
+            title.textContent = `🧩 ${topicTitle}`;
             leftLabel.textContent = 'French';
             leftLabel.style.color = '#2980b9';
             rightLabel.textContent = 'English';
@@ -2101,6 +2119,7 @@
     function returnToMenu() {
         wrongWords = [];
         dragGameState.wrongWords = [];
+        setMainTitle();
         hideAllScreens();
         setScreenVisibility('main-menu', true);
         document.querySelectorAll('#main-menu .topic-btn').forEach((button) => button.classList.remove('selected'));
