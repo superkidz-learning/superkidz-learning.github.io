@@ -287,6 +287,11 @@
             border-color: #2ecc71;
             background: #eafaf1;
         }
+        .drop-slot.selected-click,
+        .word-chip.selected-click {
+            border: 3px solid #e74c3c !important;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.18);
+        }
         .target-label {
             font-weight: bold;
             color: #2c3e50;
@@ -939,7 +944,9 @@
         wrongWords: [],
         mode: 'en2fr',
         leftOrder: [],
-        rightOrder: []
+        rightOrder: [],
+        selectedAnswerWord: null,
+        selectedTargetWord: null
     };
 
     const HIDE_CORRECT_ANSWERS_KEY = 'superkidz-hide-correct-answers';
@@ -1313,6 +1320,8 @@
         dragGameState.wrong = 0;
         dragGameState.wrongWords = [];
         dragGameState.total = dragGameState.pairs.length;
+        dragGameState.selectedAnswerWord = null;
+        dragGameState.selectedTargetWord = null;
 
         const hideCheckbox = document.getElementById('hide-correct-answers-toggle');
         if (hideCheckbox) {
@@ -1372,10 +1381,11 @@
         leftContainer.innerHTML = visibleTargetWords.map((targetWord) => {
             const matchedPair = dragGameState.matched.find(item => (isEnglishToFrench ? item.fr : item.en) === targetWord);
             const matchedAnswer = matchedPair ? (isEnglishToFrench ? matchedPair.en : matchedPair.fr) : '';
+            const selectedTargetClass = dragGameState.selectedTargetWord === targetWord ? 'selected-click' : '';
 
             if (matchedPair) {
                 return `
-                    <div class="drop-slot matched" data-word="${targetWord}" tabindex="0" role="button" aria-label="Listen to ${targetWord}" onclick="playLearningWord('${targetWord.replace(/'/g, "\\'")}', '${targetLang}')">
+                    <div class="drop-slot matched ${selectedTargetClass}" data-word="${targetWord}" tabindex="0" role="button" aria-label="Listen to ${targetWord}" onclick="playLearningWord('${targetWord.replace(/'/g, "\\'")}', '${targetLang}')">
                         <div class="target-label">${targetWord}</div>
                         <div class="matched-word">${matchedAnswer}</div>
                     </div>
@@ -1383,7 +1393,7 @@
             }
 
             return `
-                <div class="drop-slot" data-word="${targetWord}" tabindex="0" role="button" aria-label="Listen to ${targetWord}" onclick="playLearningWord('${targetWord.replace(/'/g, "\\'")}', '${targetLang}')">
+                <div class="drop-slot ${selectedTargetClass}" data-word="${targetWord}" tabindex="0" role="button" aria-label="Listen to ${targetWord}" onclick="playLearningWord('${targetWord.replace(/'/g, "\\'")}', '${targetLang}')">
                     <div class="target-label">${targetWord}</div>
                 </div>
             `;
@@ -1396,15 +1406,28 @@
                 .map(pair => isEnglishToFrench ? pair.en : pair.fr);
 
         rightContainer.innerHTML = remainingAnswers
-            .map(word => `<button class="word-chip draggable-word" draggable="true" data-word="${word}">${word}</button>`)
+            .map(word => {
+                const selectedClass = dragGameState.selectedAnswerWord === word ? 'selected-click' : '';
+                return `<button class="word-chip draggable-word ${selectedClass}" draggable="true" data-word="${word}">${word}</button>`;
+            })
             .join('');
 
         rightContainer.querySelectorAll('.draggable-word').forEach((button) => {
-            button.addEventListener('click', (event) => {
+            button.addEventListener('click', async (event) => {
                 const word = event.currentTarget.dataset.word;
-                if (word) {
-                    playLearningWord(word, answerLang);
+                if (!word) return;
+
+                if (dragGameState.selectedAnswerWord === word) {
+                    dragGameState.selectedAnswerWord = null;
+                    dragGameState.selectedTargetWord = null;
+                    renderDragDropBoard();
+                    return;
                 }
+
+                dragGameState.selectedAnswerWord = word;
+                dragGameState.selectedTargetWord = null;
+                renderDragDropBoard();
+                await playLearningWord(word, answerLang);
             });
 
             button.addEventListener('dragstart', (event) => {
@@ -1417,6 +1440,18 @@
             if (slot.classList.contains('matched')) return;
             slot.addEventListener('dragover', (event) => event.preventDefault());
             slot.addEventListener('drop', handleDragDrop);
+            slot.addEventListener('click', async () => {
+                const selectedWord = dragGameState.selectedAnswerWord;
+                const targetWord = slot.dataset.word;
+                if (!selectedWord || !targetWord) {
+                    await playLearningWord(targetWord, targetLang);
+                    return;
+                }
+
+                dragGameState.selectedTargetWord = targetWord;
+                renderDragDropBoard();
+                await processMatchAttempt(selectedWord, targetWord);
+            });
             slot.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
@@ -1428,25 +1463,23 @@
         updateDragScore();
     }
 
-    async function handleDragDrop(event) {
-        event.preventDefault();
-        const droppedWord = event.dataTransfer.getData('text/plain');
-        const targetWord = event.currentTarget.dataset.word;
-
-        if (!droppedWord || !targetWord) return;
+    async function processMatchAttempt(selectedWord, targetWord) {
+        if (!selectedWord || !targetWord) return false;
 
         await resumeAudioAndSpeechForInteraction();
 
         const matchingPair = dragGameState.pairs.find(pair => {
             const expectedTarget = dragGameState.mode === 'en2fr' ? pair.fr : pair.en;
             const expectedAnswer = dragGameState.mode === 'en2fr' ? pair.en : pair.fr;
-            return expectedTarget === targetWord && expectedAnswer === droppedWord;
+            return expectedTarget === targetWord && expectedAnswer === selectedWord;
         });
 
         if (matchingPair) {
             dragGameState.matched.push(matchingPair);
             dragGameState.correct++;
-            dragGameState.rightOrder = dragGameState.rightOrder.filter(word => word !== droppedWord);
+            dragGameState.rightOrder = dragGameState.rightOrder.filter(word => word !== selectedWord);
+            dragGameState.selectedAnswerWord = null;
+            dragGameState.selectedTargetWord = null;
             setTimeout(async () => {
                 if ('speechSynthesis' in window) {
                     await speakText(matchingPair.fr, 'fr-FR');
@@ -1458,7 +1491,7 @@
             if (dragGameState.matched.length >= dragGameState.total) {
                 finishDragDropGame();
             }
-            return;
+            return true;
         }
 
         dragGameState.wrong++;
@@ -1468,7 +1501,7 @@
 
         const wrongEntry = {
             targetWord,
-            selectedWord: droppedWord,
+            selectedWord,
             correctWord: correctAnswer || 'unknown'
         };
 
@@ -1479,9 +1512,23 @@
         if (!alreadyTracked) {
             dragGameState.wrongWords.push(wrongEntry);
         }
+
+        dragGameState.selectedAnswerWord = null;
+        dragGameState.selectedTargetWord = null;
         await speakText('Sorry, try again', 'en-US');
         await playErrorTone();
         renderDragDropBoard();
+        return false;
+    }
+
+    async function handleDragDrop(event) {
+        event.preventDefault();
+        const droppedWord = event.dataTransfer.getData('text/plain');
+        const targetWord = event.currentTarget.dataset.word;
+
+        if (!droppedWord || !targetWord) return;
+
+        await processMatchAttempt(droppedWord, targetWord);
     }
 
     function updateDragScore() {
