@@ -1037,6 +1037,11 @@
             return;
         }
 
+        if (mode === 'learning') {
+            titleEl.textContent = 'SuperKidz Learning Mode';
+            return;
+        }
+
         titleEl.textContent = 'SuperKidz French Games';
     }
 
@@ -1285,6 +1290,7 @@
 
     function showLearningMode(category = 'face') {
         currentTopicKey = category;
+        setMainTitle('learning');
         const title = document.getElementById('learning-mode-title');
         const config = getTopicConfig(category);
         if (title) {
