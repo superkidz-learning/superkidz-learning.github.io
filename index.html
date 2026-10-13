@@ -1393,27 +1393,31 @@
         const normalizedLang = (langCode || 'en-US').toLowerCase();
         const shortLang = normalizedLang.split('-')[0];
 
-        const languageMatches = voices.filter(voice => {
+        const scoreVoice = (voice) => {
             const voiceLang = (voice.lang || '').toLowerCase();
-            return voiceLang === normalizedLang || voiceLang.startsWith(shortLang + '-');
-        });
+            const voiceName = (voice.name || '').toLowerCase();
+            let score = 0;
 
-        const isFemaleVoice = (voice) => {
-            const name = (voice.name || '').toLowerCase();
-            const gender = (voice.gender || '').toLowerCase();
-            return gender === 'female'
-                || /female|woman|girl|samantha|zira|aria|victoria|susan|jenny|google.*(female|woman)/i.test(name);
+            if (voiceLang === normalizedLang) score += 100;
+            if (voiceLang.startsWith(shortLang + '-')) score += 80;
+            if (voiceLang.startsWith(shortLang)) score += 60;
+            if (voice.localService) score += 20;
+            if (voice.default) score += 10;
+
+            if (shortLang === 'fr') {
+                if (/france|french|francais|fran[cç]ais|nora|zoe|alice|amelie|amélie|sophie|jenny|thomas|charles/.test(voiceName)) score += 25;
+                if (/female|woman|girl|femme|nora|zoe|alice|amelie|amélie|sophie/.test(voiceName)) score += 15;
+            } else {
+                if (/female|woman|girl|samantha|zira|aria|victoria|susan|jenny/.test(voiceName)) score += 15;
+            }
+
+            if (voiceLang && !voiceLang.startsWith(shortLang)) score -= 50;
+
+            return score;
         };
 
-        const femaleLanguageVoice = languageMatches.find(isFemaleVoice)
-            || voices.find(isFemaleVoice);
-
-        if (femaleLanguageVoice) return femaleLanguageVoice;
-
-        return languageMatches[0]
-            || voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith(shortLang))
-            || voices[0]
-            || null;
+        const rankedVoices = [...voices].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+        return rankedVoices[0] || null;
     }
 
     function speakInstruction(text, langCode = 'en-US') {
@@ -1895,22 +1899,10 @@
 
         let utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = langCode || 'en-US';
-        utterance.rate = 0.9;
+        utterance.rate = 0.92;
+        utterance.pitch = 1.0;
 
-        const voices = window.speechSynthesis.getVoices();
-        const normalizedLang = (langCode || 'en-US').toLowerCase();
-        const shortLang = normalizedLang.split('-')[0];
-        const matches = voices.filter(voice => {
-            const voiceLang = (voice.lang || '').toLowerCase();
-            return voiceLang === normalizedLang || voiceLang.startsWith(shortLang + '-');
-        });
-
-        const preferredVoice = matches.find(voice => /female|woman|girl|samantha|zira|aria|victoria|susan|jenny|google us english/i.test(voice.name))
-            || matches[0]
-            || voices.find(voice => /female|woman|girl|samantha|zira|aria|victoria|susan|jenny|google us english/i.test(voice.name))
-            || voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith(shortLang))
-            || voices[0];
-
+        const preferredVoice = getPreferredVoice(langCode || 'en-US');
         if (preferredVoice) {
             utterance.voice = preferredVoice;
         }
