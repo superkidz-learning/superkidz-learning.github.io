@@ -2061,10 +2061,10 @@
         const topicTitle = topic ? getTopicTitle(topic) : 'French Vocabulary';
 
         if (dragGameState.mode && !document.getElementById('drag-drop-screen').classList.contains('hidden')) {
-            return `Game: ${topicTitle}`;
+            return `${topicTitle}`;
         }
 
-        return `Game: ${topicTitle}`;
+        return `${topicTitle}`;
     }
 
     function showSummary() {
