@@ -2061,12 +2061,10 @@
         const topicTitle = topic ? getTopicTitle(topic) : 'French Vocabulary';
 
         if (dragGameState.mode && !document.getElementById('drag-drop-screen').classList.contains('hidden')) {
-            const modeText = dragGameState.mode === 'fr2en' ? 'French to English' : 'English to French';
-            return `Game: ${topicTitle} - SuperKidz ${modeText}`;
+            return `Game: ${topicTitle}`;
         }
 
-        const promptText = testMode === 'fr2en' ? 'French to English' : 'English to French';
-        return `Game: ${topicTitle} - SuperKidz ${promptText}`;
+        return `Game: ${topicTitle}`;
     }
 
     function showSummary() {
