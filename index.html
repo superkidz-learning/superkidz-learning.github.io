@@ -614,9 +614,9 @@
         </div>
     </div>
 
-    <!-- Drag and Drop - English to French GAME SCREEN -->
+    <!-- Drag and Drop / Click to Match - English to French GAME SCREEN -->
     <div id="drag-drop-screen" class="hidden">
-        <h2 id="drag-game-title">🧩 Drag and Drop - English to French Game</h2>
+        <h2 id="drag-game-title">🧩 SuperKidz English to French Game</h2>
         <div class="drag-toolbar">
             <label class="hide-correct-toggle" for="hide-correct-answers-toggle">
                 <input id="hide-correct-answers-toggle" type="checkbox" />
@@ -688,7 +688,7 @@
 <div id="drag-instructions-overlay" class="instruction-overlay hidden">
     <div class="instruction-card">
         <h3>Instructions</h3>
-        <p id="drag-instruction-text">Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.</p>
+        <p id="drag-instruction-text">Welcome to SuperKidz English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.</p>
         <button onclick="closeDragInstructions()" style="background-color: #ae3ce7; font-size: 20px; padding: 12px 24px;">Dismiss</button>
     </div>
 </div>
@@ -909,8 +909,8 @@
         submenus.innerHTML = topics.map((topic) => `
             <div id="topic-submenu-${topic.key}" class="submenu-panel hidden" data-topic-key="${topic.key}">
                 <div class="menu-buttons">
-                    <button class="menu-btn" onclick="startDragDropGame('en2fr', '${topic.key}')" style="background-color: #8e44ad;">🧩 Drag and Drop - English to French</button>
-                    <button class="menu-btn" onclick="startDragDropGame('fr2en', '${topic.key}')" style="background-color: #6c5ce7;">🧩 Drag and Drop - French to English</button>
+                    <button class="menu-btn" onclick="startDragDropGame('en2fr', '${topic.key}')" style="background-color: #8e44ad;">🧩 SuperKidz English to French</button>
+                    <button class="menu-btn" onclick="startDragDropGame('fr2en', '${topic.key}')" style="background-color: #6c5ce7;">🧩 SuperKidz French to English</button>
                     <button class="menu-btn" onclick="showLearningMode('${topic.key}')" style="background-color: #2ecc71;">📚 Learning Mode</button>
                 </div>
             </div>
@@ -1143,8 +1143,8 @@
         const mode = dragGameState.mode === 'fr2en' ? 'French to English' : 'English to French';
 
         instructionText.textContent = dragGameState.mode === 'fr2en'
-            ? 'Welcome to Drag and Drop - French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
-            : 'Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
+            ? 'Welcome to SuperKidz French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
+            : 'Welcome to SuperKidz English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
 
         overlay.classList.remove('hidden');
         speakDragInstruction();
@@ -1262,8 +1262,8 @@
 
     function speakDragInstruction() {
         const text = dragGameState.mode === 'fr2en'
-            ? 'Welcome to Drag and Drop - French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
-            : 'Welcome to Drag and Drop - English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
+            ? 'Welcome to SuperKidz French to English Game. You can either drag the French word on the right-hand side to match with the English word on the left-hand side, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
+            : 'Welcome to SuperKidz English to French Game. You can either drag the English word on the right-hand side to match with the French word on the left-hand side, or click an English word, then click the matching French word. Click the same selected word again to unselect it.';
 
         speakInstruction(text, 'en-US');
     }
@@ -1866,11 +1866,11 @@
 
         if (dragGameState.mode && !document.getElementById('drag-drop-screen').classList.contains('hidden')) {
             const modeText = dragGameState.mode === 'fr2en' ? 'French to English' : 'English to French';
-            return `Game: ${topicTitle} - Drag and Drop - ${modeText}`;
+            return `Game: ${topicTitle} - SuperKidz ${modeText}`;
         }
 
         const promptText = testMode === 'fr2en' ? 'French to English' : 'English to French';
-        return `Game: ${topicTitle} - Drag and Drop - ${promptText}`;
+        return `Game: ${topicTitle} - SuperKidz ${promptText}`;
     }
 
     function showSummary() {
