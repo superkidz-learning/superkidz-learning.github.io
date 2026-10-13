@@ -105,6 +105,54 @@
             padding: 16px 12px 10px;
             margin-top: 8px;
         }
+        .topic-choice-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.52);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 50;
+        }
+        .topic-choice-overlay.hidden {
+            display: none;
+        }
+        .topic-choice-card {
+            position: relative;
+            width: min(90vw, 560px);
+            background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%);
+            border: 3px solid #dfeeff;
+            border-radius: 22px;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+            padding: 26px 20px 20px;
+            text-align: center;
+        }
+        .topic-choice-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+            min-height: 42px;
+            height: 42px;
+            padding: 0;
+            font-size: 24px;
+            border-radius: 50%;
+            background: #e74c3c;
+            margin: 0;
+        }
+        .topic-choice-title {
+            margin: 8px 42px 18px;
+            font-size: 30px;
+            color: #2c3e50;
+        }
+        .topic-choice-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
         #main-menu .menu-btn:hover {
             transform: translateY(-1px);
         }
@@ -603,6 +651,14 @@
         </div>
     </div>
 
+    <div id="topic-choice-overlay" class="topic-choice-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="topic-choice-title">
+        <div class="topic-choice-card">
+            <button type="button" class="topic-choice-close" onclick="closeTopicChoiceOverlay()" aria-label="Close topic menu">✕</button>
+            <h3 id="topic-choice-title" class="topic-choice-title">Choose an activity</h3>
+            <div id="topic-choice-actions" class="topic-choice-actions"></div>
+        </div>
+    </div>
+
     <!-- LEARNING MODE SCREEN -->
     <div id="learning-screen" class="hidden">
         <h2 id="learning-mode-title" data-topic-label="body">Le corps (The body)</h2>
@@ -966,15 +1022,42 @@
             <button class="menu-btn topic-btn" data-topic-key="${topic.key}" onclick="showTopicMenu('${topic.key}'); speakTopicName('${topic.key}');" style="background-color: ${topic.color};">${getTopicTitle(topic)}</button>
         `).join('');
 
-        submenus.innerHTML = topics.map((topic) => `
-            <div id="topic-submenu-${topic.key}" class="submenu-panel hidden" data-topic-key="${topic.key}">
-                <div class="menu-buttons">
-                    <button class="menu-btn" onclick="startDragDropGame('en2fr', '${topic.key}')" style="background-color: #8e44ad;">🧩 SuperKidz English to French</button>
-                    <button class="menu-btn" onclick="startDragDropGame('fr2en', '${topic.key}')" style="background-color: #6c5ce7;">🧩 SuperKidz French to English</button>
-                    <button class="menu-btn" onclick="showLearningMode('${topic.key}')" style="background-color: #2ecc71;">📚 Learning Mode</button>
-                </div>
-            </div>
-        `).join('');
+        // submenus.innerHTML = topics.map((topic) => `
+        //     <div id="topic-submenu-${topic.key}" class="submenu-panel hidden" data-topic-key="${topic.key}">
+        //         <div class="menu-buttons">
+        //             <button class="menu-btn" onclick="startDragDropGame('en2fr', '${topic.key}')" style="background-color: #8e44ad;">🧩 SuperKidz English to French</button>
+        //             <button class="menu-btn" onclick="startDragDropGame('fr2en', '${topic.key}')" style="background-color: #6c5ce7;">🧩 SuperKidz French to English</button>
+        //             <button class="menu-btn" onclick="showLearningMode('${topic.key}')" style="background-color: #2ecc71;">📚 Learning Mode</button>
+        //         </div>
+        //     </div>
+        // `).join('');
+    }
+
+    function openTopicChoiceOverlay(topicKey) {
+        const overlay = document.getElementById('topic-choice-overlay');
+        const actions = document.getElementById('topic-choice-actions');
+        const topic = getTopicConfig(topicKey);
+        if (!overlay || !actions || !topic) return;
+
+        const title = document.getElementById('topic-choice-title');
+        if (title) {
+            title.textContent = `${getTopicTitle(topic)}`;
+        }
+
+        actions.innerHTML = `
+            <button class="menu-btn" onclick="startDragDropGame('en2fr', '${topic.key}'); closeTopicChoiceOverlay();" style="background-color: #8e44ad; width: 100%;">🧩 Play English to French</button>
+            <button class="menu-btn" onclick="startDragDropGame('fr2en', '${topic.key}'); closeTopicChoiceOverlay();" style="background-color: #6c5ce7; width: 100%;">🧩 Play French to English</button>
+            <button class="menu-btn" onclick="showLearningMode('${topic.key}'); closeTopicChoiceOverlay();" style="background-color: #2ecc71; width: 100%;">📚 Learning Mode</button>
+        `;
+
+        overlay.classList.remove('hidden');
+    }
+
+    function closeTopicChoiceOverlay() {
+        const overlay = document.getElementById('topic-choice-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
     }
 
     soundEnabled = getSoundPreference();
@@ -1126,6 +1209,8 @@
             const isSelected = panel.dataset.topicKey === selectedTopic;
             panel.classList.toggle('hidden', !isSelected);
         });
+
+        openTopicChoiceOverlay(selectedTopic);
     }
 
     function cancelSpeech() {
@@ -2030,6 +2115,13 @@
             renderDragDropBoard();
         });
     }
+
+    window.addEventListener('keydown', (event) => {
+        const overlay = document.getElementById('topic-choice-overlay');
+        if (event.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) {
+            closeTopicChoiceOverlay();
+        }
+    });
 
     const resumeAudioOnInteraction = () => {
         if (typeof ensureAudioReady === 'function') {
