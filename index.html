@@ -287,6 +287,11 @@
             border-color: #2ecc71;
             background: #eafaf1;
         }
+        .drop-slot.drag-hover {
+            border-color: #3498db !important;
+            background: #eaf5ff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
         .drop-slot.selected-click,
         .word-chip.selected-click {
             border: 3px solid #e74c3c !important;
@@ -1438,8 +1443,18 @@
 
         leftContainer.querySelectorAll('.drop-slot').forEach((slot) => {
             if (slot.classList.contains('matched')) return;
-            slot.addEventListener('dragover', (event) => event.preventDefault());
-            slot.addEventListener('drop', handleDragDrop);
+            slot.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                slot.classList.add('drag-hover');
+            });
+            slot.addEventListener('dragleave', () => {
+                slot.classList.remove('drag-hover');
+            });
+            slot.addEventListener('drop', (event) => {
+                event.preventDefault();
+                slot.classList.remove('drag-hover');
+                handleDragDrop(event);
+            });
             slot.addEventListener('click', async () => {
                 const selectedWord = dragGameState.selectedAnswerWord;
                 const targetWord = slot.dataset.word;
