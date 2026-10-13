@@ -1342,6 +1342,8 @@
     }
 
     async function speakTopicName(topicKey) {
+        if (!soundEnabled) return;
+
         const config = getTopicConfig(topicKey);
         if (!config) return;
 
@@ -1366,10 +1368,12 @@
         speakQueued('You have selected', 'en-US');
 
         setTimeout(() => {
+            if (!soundEnabled) return;
             speakQueued(frenchText, 'fr-FR');
         }, 450);
 
         setTimeout(() => {
+            if (!soundEnabled) return;
             speakQueued(englishText, 'en-US');
         }, 900);
     }
