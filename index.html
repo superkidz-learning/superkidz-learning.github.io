@@ -1455,12 +1455,6 @@
         return mode === 'fr2en' ? 'French to English' : 'English to French';
     }
 
-    function getDragGameWelcomeText(mode = 'en2fr', category = 'face') {
-        const topic = getTopicConfig(category);
-        const topicLabel = topic ? (topic.englishName || topic.frenchName || topic.key || 'this topic') : (category || 'this topic');
-        return `Welcome to SuperKidz ${getDragModeLabel(mode)} Game - ${topicLabel}`;
-    }
-
     function speakDragGameStartWelcome(mode = 'en2fr', category = 'face') {
         if (!soundEnabled || !('speechSynthesis' in window)) return;
 
