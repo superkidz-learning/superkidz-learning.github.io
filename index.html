@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuperKidz French Games: Le Corps et Le Visage</title>
+    <title>SuperKidz French Games</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
@@ -1002,7 +1002,7 @@
                 button.textContent = '🔊 Sound: On';
                 button.style.backgroundColor = '#2ecc71';
             } else {
-                button.textContent = '🔇 Sound: Muted';
+                button.textContent = '🔇 Sound: Off';
                 button.style.backgroundColor = '#7f8c8d';
             }
         });
@@ -1451,6 +1451,21 @@
         speakNow();
     }
 
+    function getDragModeLabel(mode = 'en2fr') {
+        return mode === 'fr2en' ? 'French to English' : 'English to French';
+    }
+
+    function getDragGameWelcomeText(mode = 'en2fr', category = 'face') {
+        const topic = getTopicConfig(category);
+        const topicLabel = topic ? (topic.englishName || topic.frenchName || topic.key || 'this topic') : (category || 'this topic');
+        return `Welcome to SuperKidz ${getDragModeLabel(mode)} Game - ${topicLabel}`;
+    }
+
+    function speakDragGameStartWelcome(mode = 'en2fr', category = 'face') {
+        if (!soundEnabled) return;
+        speakInstruction(getDragGameWelcomeText(mode, category), 'en-US');
+    }
+
     function speakDragInstruction() {
         const text = dragGameState.mode === 'fr2en'
             ? 'Welcome to SuperKidz French to English Game. You can either drag the French word to match with the English word, or click a French word, then click the matching English word. Click the same selected word again to unselect it.'
@@ -1556,6 +1571,7 @@
         document.getElementById('drag-drop-screen').classList.remove('hidden');
 
         renderDragDropBoard();
+        speakDragGameStartWelcome(mode, category);
     }
 
     function renderDragDropBoard() {
