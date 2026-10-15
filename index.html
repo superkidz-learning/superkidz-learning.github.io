@@ -1462,8 +1462,35 @@
     }
 
     function speakDragGameStartWelcome(mode = 'en2fr', category = 'face') {
-        if (!soundEnabled) return;
-        speakInstruction(getDragGameWelcomeText(mode, category), 'en-US');
+        if (!soundEnabled || !('speechSynthesis' in window)) return;
+
+        const topic = getTopicConfig(category);
+        const frenchTopic = topic ? (topic.frenchName || getTopicTitle(topic)) : 'this topic';
+        const englishTopic = topic ? (topic.englishName || getTopicTitle(topic)) : 'this topic';
+
+        const speakQueued = (text, lang) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            const preferredVoice = getPreferredVoice(lang);
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        };
+
+        window.speechSynthesis.cancel();
+        speakQueued(`Welcome to SuperKidz ${getDragModeLabel(mode)} Game`, 'en-US');
+
+        setTimeout(() => {
+            if (!soundEnabled) return;
+            speakQueued(frenchTopic, 'fr-FR');
+        }, 550);
+
+        setTimeout(() => {
+            if (!soundEnabled) return;
+            speakQueued(englishTopic, 'en-US');
+        }, 1100);
     }
 
     function speakDragInstruction() {
