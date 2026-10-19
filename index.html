@@ -1897,7 +1897,7 @@
             if (dragGameState.wrongWords.length > 0) {
                 wrongSummary.innerHTML = `
                     <h3>Wrong Words</h3>
-                    <ul>${dragGameState.wrongWords.map((item) => `<li>Selected: "${item.selectedWord}" for "${item.targetWord}" — correct word: "${item.correctWord}"</li>`).join('')}</ul>
+                    <ul>${dragGameState.wrongWords.map((item) => `<li>Incorrectly selected: "${item.selectedWord}" for "${item.targetWord}" — Correct word: "${item.correctWord}"</li>`).join('')}</ul>
                 `;
             } else {
                 wrongSummary.innerHTML = `
